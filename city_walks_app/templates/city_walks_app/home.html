@@ -381,7 +381,7 @@
         Walk<br>
         <span class="from-word">the</span> <span class="city-word">World.</span>
       </h1>
-      <div class="cw-sub-script"><span>—</span> curated routes through the cities you love.</div>
+      <div class="cw-sub-script"><span>—</span> highlighted walks from cities around the world.</div>
       <div class="cw-stats-strip">
         <div class="cw-stat-item">
           <span class="cw-stat-n">{{ total_walks }}</span>
@@ -400,19 +400,17 @@
       </div>
     </div>
     <div class="cw-postmark-badge">
-      <div class="cw-postmark-circle">
-        <div>
-          <div>CITYWALKS</div>
-          <div class="cw-postmark-date">2026</div>
-          <div>★ ★ ★</div>
-        </div>
-      </div>
+      <a href="/about" style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal-deep,#0E4F4C);border:1.5px solid var(--teal-deep,#0E4F4C);border-radius:999px;padding:8px 16px;text-decoration:none;white-space:nowrap;">+ Add a walk</a>
     </div>
   </div>
 </section>
 
 <!-- ── Walk grid ─────────────────────────────────────────────────────────── -->
 <div class="cw-body">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:40px;padding-bottom:16px;border-bottom:1.5px dashed var(--rule);">
+    <h2 style="font-family:var(--serif-display);font-size:clamp(36px,4vw,52px);font-weight:700;font-style:italic;letter-spacing:-0.02em;color:var(--ink);line-height:1;">Highlighted Walks</h2>
+    <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute);">{{ total_walks }} walk{{ total_walks|pluralize }} · {{ total_cities }} cit{{ total_cities|pluralize:"y,ies" }}</span>
+  </div>
   {% if not walks %}
   <p style="font-family: var(--script); font-size: 24px; color: var(--ink-mute);">No walks found yet — add markdown files with <code>type: walk</code> to content/</p>
   {% endif %}
@@ -442,12 +440,6 @@
           <!-- City name overlay -->
           <div class="cw-card-city-overlay">{{ walk.city_name }}</div>
 
-          <!-- Mini stamp -->
-          <div class="stamp-edge cw-card-stamp">
-            <div class="cw-card-stamp-inner" style="background: var(--coral-deep);">
-              {{ walk.city_name|upper|truncatechars:10 }}
-            </div>
-          </div>
         </div>
 
         <!-- Card text -->
@@ -479,7 +471,11 @@
 <!-- ── Footer ────────────────────────────────────────────────────────────── -->
 <footer class="cw-page-footer">
   <div class="cw-footer-script">— written by people who walk.</div>
-  <div class="cw-footer-mono">CITYWALKS · World Edition · ©2026</div>
+  <div style="display:flex;gap:16px;align-items:center;">
+    <a href="/about" style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-mute);text-decoration:none;">+ Add a walk</a>
+    <span style="color:var(--rule);">·</span>
+    <span class="cw-footer-mono">CITYWALKS · ©2026</span>
+  </div>
 </footer>
 
 {% endblock %}

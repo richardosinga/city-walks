@@ -24,6 +24,10 @@ _CITY_COLORS = [
 ]
 
 
+def about(request):
+    return render(request, "city_walks_app/about.html")
+
+
 def content_image(request, path):
     file_path = CONTENT_DIR / path
     if not file_path.exists() or not file_path.is_file():

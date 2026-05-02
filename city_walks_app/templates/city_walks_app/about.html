@@ -1,0 +1,317 @@
+{% extends "city_walks_app/base.html" %}
+{% block title %}How to Add a Walk — City Walks{% endblock %}
+
+{% block body_style %}
+<style>
+  .about-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 40px 96px 40px;
+  }
+
+  .about-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--coral-deep, #C13C20);
+    margin-bottom: 12px;
+  }
+
+  .about-title {
+    font-family: var(--serif-display);
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  .about-lead {
+    font-family: var(--serif-body, 'Cormorant Garamond', Georgia, serif);
+    font-size: 21px;
+    line-height: 1.65;
+    color: var(--ink-soft, #3A342A);
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1.5px dashed var(--rule, #C9B88D);
+  }
+
+  /* Steps */
+  .about-steps { display: flex; flex-direction: column; gap: 48px; }
+
+  .about-step {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .step-num {
+    font-family: var(--serif-display);
+    font-size: 52px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.85;
+    color: rgba(232,93,61,0.18);
+    letter-spacing: -0.04em;
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .step-body {}
+
+  .step-heading {
+    font-family: var(--serif-display);
+    font-size: 26px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.05;
+  }
+
+  .step-text {
+    font-family: var(--serif-body, 'Cormorant Garamond', Georgia, serif);
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink-soft, #3A342A);
+  }
+
+  .step-text p { margin-bottom: 0.8em; }
+
+  /* Code blocks */
+  .step-code {
+    margin: 16px 0;
+    background: var(--ink);
+    color: #E8C988;
+    border-radius: 4px;
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    position: relative;
+  }
+  .step-code .comment { color: rgba(232,201,136,0.45); }
+  .step-code .key { color: #6FBDB8; }
+  .step-code .val { color: #F2A1B8; }
+  .step-code .str { color: #E8C988; }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: rgba(26,24,18,0.07);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* Note card */
+  .about-note {
+    background: rgba(31,114,110,0.08);
+    border-left: 3px solid var(--teal, #1F726E);
+    border-radius: 0 4px 4px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-family: var(--serif-body, 'Cormorant Garamond', Georgia, serif);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  /* Agent prompt box */
+  .agent-prompt {
+    background: var(--cream);
+    border: 1.5px dashed var(--coral, #E85D3D);
+    border-radius: 6px;
+    padding: 20px 22px;
+    margin: 20px 0;
+    font-family: var(--script);
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .agent-prompt::before {
+    content: "✎ example prompt";
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--coral-deep, #C13C20);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* Separator */
+  .about-rule {
+    border: none;
+    border-top: 1.5px dashed var(--rule, #C9B88D);
+    margin: 56px 0;
+  }
+
+  /* CTA */
+  .about-cta {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1.5px dashed var(--rule, #C9B88D);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .about-cta-text {
+    font-family: var(--script);
+    font-size: 26px;
+    color: var(--ink-soft);
+  }
+
+  .about-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 12px 22px; border-radius: 999px; text-decoration: none;
+    transition: background 140ms, color 140ms, transform 140ms;
+  }
+  .about-btn:hover { transform: translateY(-2px); text-decoration: none; }
+  .about-btn-primary { background: var(--ink); color: var(--cream); border: 2px solid var(--ink); }
+  .about-btn-primary:hover { background: var(--coral, #E85D3D); border-color: var(--coral, #E85D3D); color: white; }
+  .about-btn-secondary { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .about-btn-secondary:hover { background: var(--ink); color: var(--cream); }
+</style>
+{% endblock %}
+
+{% block wide_content %}
+<div class="about-page">
+
+  <div class="about-eyebrow">Contributing · City Walks</div>
+  <h1 class="about-title">How to add<br>a walk.</h1>
+  <p class="about-lead">
+    Every walk in this collection is a markdown file in a GitHub repository — a route, a list of stops, and prose that a person can actually read on the street. Adding a walk means writing that file. An AI agent can help with the research and the first draft; a human who knows the neighbourhood makes it worth reading.
+  </p>
+
+  <div class="about-steps">
+
+    <!-- Step 1 -->
+    <div class="about-step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-heading">Fork the repository on GitHub</div>
+        <div class="step-text">
+          <p>The walk content lives at <a href="https://github.com/richardosinga/city-walks" target="_blank">github.com/richardosinga/city-walks</a>. Fork the repo, clone it locally, and create a branch for your walk.</p>
+          <div class="step-code"><span class="comment"># Clone and branch</span>
+git clone https://github.com/YOUR_USERNAME/city-walks
+cd city-walks
+git checkout -b walk/amsterdam-oud-west</div>
+          <p>The walk content lives in <code>content/</code>, organised by continent → country → city. Create your walk file in the right city directory.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="about-step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-heading">Write the walk file</div>
+        <div class="step-text">
+          <p>A walk is a markdown file with a YAML frontmatter block. The required fields are <code>type: walk</code>, a <code>route</code> (list of <code>[lat, lng]</code> pairs), and a <code>waypoints</code> list of stop slugs.</p>
+          <div class="step-code"><span class="comment"># content/europe/netherlands/amsterdam/my_walk.md</span>
+<span class="key">---</span>
+<span class="key">title:</span> <span class="str">"A Walk Through the Harbour"</span>
+<span class="key">type:</span> <span class="val">walk</span>
+<span class="key">image:</span> <span class="str">amsterdam.jpg</span>
+<span class="key">latitude:</span> <span class="val">52.3740</span>
+<span class="key">longitude:</span> <span class="val">4.8897</span>
+<span class="key">waypoints:</span>
+  - stop_one_slug
+  - stop_two_slug
+  - stop_three_slug
+<span class="key">route:</span>
+  - [52.3740, 4.8897]
+  - [52.3745, 4.8903]
+  - <span class="comment"># ... more coordinates</span>
+<span class="key">---</span>
+
+Walk prose goes here. Link to stops inline like
+[Stop One](/europe/netherlands/amsterdam/stop_one_slug).
+Each link becomes a tappable card on the detail page.</div>
+          <div class="about-note">
+            Route coordinates can be exported as a GPX from any mapping app, or traced in Google Maps. The walk renderer draws the polyline and computes distance automatically.
+          </div>
+          <p>Each waypoint is either a POI file you create in the same directory, or a POI that already exists in the <a href="https://github.com/DOsinga/world66" target="_blank">World66</a> content — the app falls back to World66 automatically, so there's no need to duplicate content that's already there.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="about-step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-heading">Use an AI agent for the first draft</div>
+        <div class="step-text">
+          <p>The prose and stop descriptions are where the work is. Claude Code — or any agent with access to the repo — can draft both, working from World66's existing neighbourhood and POI content as source material. The agent follows the same git workflow as a human contributor.</p>
+
+          <div class="agent-prompt">
+            Write an architecture walk for Oud-West, Amsterdam. Use the POIs and neighbourhood descriptions already in the World66 content at <code>content/europe/netherlands/amsterdam/</code>. Create new POI files for stops that don't exist yet. The walk should tell an architectural story — not a list of sights, but a narrative a person can follow on foot.
+          </div>
+
+          <p>The agent can also geocode waypoints (using the coordinates already in World66 POI files), generate the route from a rough sketch, and check that all linked slugs resolve to real files.</p>
+
+          <div class="about-note">
+            Agents work best when given a specific neighbourhood and a specific angle — "architecture", "food history", "1970s counterculture". A walk with no argument is harder to write than one that knows what it's trying to say.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="about-step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-heading">Run locally and check the cards</div>
+        <div class="step-text">
+          <p>Start the dev server and open your walk. The walk detail page splits the prose into per-stop cards — check that the section boundaries fall in the right places and that clicking a stop name opens the correct POI card.</p>
+          <div class="step-code"><span class="comment"># Install deps and run</span>
+pip install -r requirements.txt
+python manage.py runserver 8067
+
+<span class="comment"># Open your walk</span>
+open http://localhost:8067/europe/netherlands/amsterdam/my_walk</div>
+          <p>If a stop isn't linking correctly, check that the slug in the <code>waypoints</code> list matches the filename of the POI file, and that the inline link in the prose uses the full path.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="about-step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-heading">Open a pull request</div>
+        <div class="step-text">
+          <p>Push your branch and open a PR against <code>main</code>. Include a short note about the walk — the neighbourhood, the angle, any sources you used. Walks are reviewed for accuracy and prose quality before merging.</p>
+          <div class="step-code">git add content/
+git commit -m "add: Amsterdam Oud-West architecture walk"
+git push -u origin walk/amsterdam-oud-west
+gh pr create --title "Add: Amsterdam Oud-West architecture walk"</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /about-steps -->
+
+  <div class="about-cta">
+    <div class="about-cta-text">— ready to walk?</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="https://github.com/richardosinga/city-walks" target="_blank" class="about-btn about-btn-primary">View on GitHub →</a>
+      <a href="/" class="about-btn about-btn-secondary">← Browse walks</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

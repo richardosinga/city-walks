@@ -1,7 +1,7 @@
 ---
 title: "The SoMa Arts Walk"
 type: walk
-image: sanfrancisco.jpg
+image: soma.jpg
 tags:
   - city_walks
 latitude: 37.7857
