@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}City Walks{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:           #1a1208;
+      --mute:          #6b5c45;
+      --accent:        #b8532b;
+      --paper:         #faf7f2;
+      --paper-2:       #f3ede3;
+      --paper-3:       #ede5d8;
+      --line:          #e0d5c5;
+      --line-2:        #cfc3b0;
+      --display-font:  'Playfair Display', Georgia, serif;
+      --label-font:    'Inter', system-ui, sans-serif;
+      --body-font:     'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--body-font);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Site header ───────────────────────────────────────────────────────── */
+    .cw-site-header {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    .cw-site-header a {
+      font-family: var(--display-font);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .cw-site-header a:hover { text-decoration: none; color: var(--accent); }
+
+    /* ── Main content area ─────────────────────────────────────────────────── */
+    .cw-main {
+      width: 100%;
+    }
+
+    {% block body_style %}{% endblock %}
+  </style>
+</head>
+<body>
+
+<header class="cw-site-header">
+  <a href="/">City Walks</a>
+</header>
+
+{% block hero %}{% endblock %}
+
+<main class="cw-main">
+  {% block wide_content %}{% endblock %}
+</main>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>
