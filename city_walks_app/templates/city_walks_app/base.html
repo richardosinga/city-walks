@@ -6,20 +6,30 @@
   <title>{% block title %}City Walks{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600;1,9..144,700;1,9..144,900&family=Caveat:wght@400;600;700&family=DM+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink:           #1a1208;
-      --mute:          #6b5c45;
-      --accent:        #b8532b;
-      --paper:         #faf7f2;
-      --paper-2:       #f3ede3;
-      --paper-3:       #ede5d8;
-      --line:          #e0d5c5;
-      --line-2:        #cfc3b0;
-      --display-font:  'Playfair Display', Georgia, serif;
-      --label-font:    'Inter', system-ui, sans-serif;
-      --body-font:     'Inter', system-ui, sans-serif;
+      --cream:       #F4E8CE;
+      --cream-deep:  #ECDDB8;
+      --sand:        #E8C988;
+      --coral:       #E85D3D;
+      --coral-deep:  #C13C20;
+      --teal:        #1F726E;
+      --teal-deep:   #0E4F4C;
+      --aqua:        #6FBDB8;
+      --ocean:       #1E3A5F;
+      --ink:         #1A1812;
+      --ink-soft:    #3A342A;
+      --ink-mute:    #6B6557;
+      --rule:        #C9B88D;
+      --paper:       #F4E8CE;
+      --stamp-red:   #B83C24;
+
+      --serif-display: 'Fraunces', Georgia, serif;
+      --serif-body:    'Cormorant Garamond', Georgia, serif;
+      --script:        'Caveat', cursive;
+      --mono:          'DM Mono', ui-monospace, monospace;
+      --sans:          'Inter', system-ui, sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,38 +37,127 @@
     html { font-size: 16px; }
 
     body {
-      background: var(--paper);
+      background: var(--cream);
+      background-image:
+        radial-gradient(rgba(140,90,30,0.05) 1px, transparent 1.4px),
+        radial-gradient(rgba(140,90,30,0.04) 1px, transparent 1px);
+      background-size: 4px 4px, 9px 9px;
       color: var(--ink);
-      font-family: var(--body-font);
+      font-family: var(--sans);
       line-height: 1.6;
       min-height: 100vh;
     }
 
-    a { color: var(--accent); text-decoration: none; }
+    a { color: var(--coral-deep); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     /* ── Site header ───────────────────────────────────────────────────────── */
     .cw-site-header {
-      background: var(--paper);
-      border-bottom: 1px solid var(--line);
-      padding: 0 1.5rem;
-      height: 52px;
+      background: var(--cream);
+      border-bottom: 1.5px dashed var(--rule);
+      padding: 0 2rem;
+      height: 56px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
     }
 
-    .cw-site-header a {
-      font-family: var(--display-font);
-      font-size: 1.25rem;
+    .cw-site-logo {
+      font-family: var(--serif-display);
+      font-size: 1.35rem;
       font-weight: 700;
+      font-style: italic;
       color: var(--ink);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
     }
-    .cw-site-header a:hover { text-decoration: none; color: var(--accent); }
+    .cw-site-logo:hover { text-decoration: none; color: var(--coral); }
+
+    .cw-site-eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
 
     /* ── Main content area ─────────────────────────────────────────────────── */
-    .cw-main {
-      width: 100%;
+    .cw-main { width: 100%; }
+
+    /* ── Postcard shared styles ────────────────────────────────────────────── */
+    .postcard {
+      background: var(--cream);
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 20px 60px -20px rgba(26,24,18,0.35), 0 4px 14px -6px rgba(26,24,18,0.14),
+                  inset 0 0 0 8px rgba(255,255,255,0.45), inset 0 0 0 9px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .postcard::before {
+      content: "";
+      position: absolute; inset: 14px;
+      border: 1.5px dashed rgba(184,60,36,0.3);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .stamp-edge {
+      position: relative;
+      padding: 5px;
+      background: var(--cream);
+      filter: drop-shadow(0 3px 7px rgba(0,0,0,0.18));
+    }
+    .stamp-edge::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 6px 0, transparent 4px, var(--cream) 4.4px) 0 0/12px 12px repeat-x,
+        radial-gradient(circle at 6px 12px, transparent 4px, var(--cream) 4.4px) 0 100%/12px 12px repeat-x,
+        radial-gradient(circle at 0 6px, transparent 4px, var(--cream) 4.4px) 0 0/12px 12px repeat-y,
+        radial-gradient(circle at 12px 6px, transparent 4px, var(--cream) 4.4px) 100% 0/12px 12px repeat-y,
+        var(--cream);
+      z-index: -1;
+    }
+
+    .postmark {
+      border: 2px solid var(--stamp-red);
+      color: var(--stamp-red);
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      text-align: center;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.82;
+    }
+
+    .tape {
+      position: absolute;
+      background: rgba(255,229,168,0.72);
+      border-left: 1px dashed rgba(0,0,0,0.09);
+      border-right: 1px dashed rgba(0,0,0,0.09);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    .meta-pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      padding: 2px 8px;
     }
 
     {% block body_style %}{% endblock %}
@@ -67,7 +166,8 @@
 <body>
 
 <header class="cw-site-header">
-  <a href="/">City Walks</a>
+  <a href="/" class="cw-site-logo">City Walks</a>
+  <span class="cw-site-eyebrow">Walking the world, one street at a time</span>
 </header>
 
 {% block hero %}{% endblock %}

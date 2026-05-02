@@ -1,49 +1,420 @@
 {% extends "city_walks_app/base.html" %}
-{% block title %}City Walks — World66{% endblock %}
+{% block title %}City Walks — Walk the World{% endblock %}
 
 {% block body_style %}
 <style>
-  #content { display: block; min-height: 0; padding: 0; }
-  #sidebar  { display: none; }
+  /* ── Hero map ────────────────────────────────────────────────────────────── */
+  .cw-hero {
+    position: relative;
+    height: 380px;
+    overflow: hidden;
+  }
+  .cw-map {
+    position: absolute; inset: 0;
+    filter: sepia(20%) saturate(85%);
+  }
+  /* Cream paper overlay at bottom */
+  .cw-hero::after {
+    content: "";
+    position: absolute; bottom: 0; left: 0; right: 0; height: 100px;
+    background: linear-gradient(transparent, var(--cream));
+    pointer-events: none;
+  }
+
+  /* ── Page headline ───────────────────────────────────────────────────────── */
+  .cw-headline-section {
+    position: relative;
+    padding: 56px 56px 0 56px;
+    overflow: hidden;
+  }
+  .cw-deco-lines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; opacity: 0.5;
+  }
+  .cw-headline-inner {
+    position: relative; z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .cw-headline-left { flex: 1; }
+  .cw-eyebrow-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--coral-deep);
+    margin-bottom: 10px;
+  }
+  .cw-headline {
+    font-family: var(--serif-display);
+    font-size: clamp(72px, 8vw, 120px);
+    line-height: 0.85;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .cw-headline .from-word { color: var(--coral); }
+  .cw-headline .city-word {
+    background: linear-gradient(120deg, #F4A82E, var(--coral), #D8527A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cw-sub-script {
+    font-family: var(--script);
+    font-size: 30px;
+    color: var(--ink-soft);
+    transform: rotate(-1deg);
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .cw-sub-script span { color: var(--teal); }
+
+  /* Postmark badge */
+  .cw-postmark-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+    padding-top: 16px;
+    flex-shrink: 0;
+  }
+  .cw-postmark-circle {
+    width: 100px; height: 100px;
+    border: 2.5px solid var(--stamp-red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    transform: rotate(-10deg);
+    color: var(--stamp-red);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.82;
+    line-height: 1.2;
+  }
+  .cw-postmark-date {
+    font-family: var(--serif-display);
+    font-style: italic;
+    font-size: 18px;
+    margin: 3px 0;
+    letter-spacing: 0;
+  }
+  .cw-stats-strip {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1.5px dashed var(--rule);
+  }
+  .cw-stat-item { display: flex; flex-direction: column; gap: 1px; }
+  .cw-stat-n {
+    font-family: var(--serif-display);
+    font-size: 42px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+  }
+  .cw-stat-l {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* ── City sections ───────────────────────────────────────────────────────── */
+  .cw-body {
+    padding: 64px 56px 80px 56px;
+  }
+  .cw-city { margin-bottom: 80px; }
+  .cw-city:last-child { margin-bottom: 0; }
+
+  .cw-city-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 16px;
+    border-bottom: 1.5px dashed var(--rule);
+  }
+  .cw-city-name {
+    font-family: var(--serif-display);
+    font-size: 56px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .cw-city-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* ── Postcard walk grid ──────────────────────────────────────────────────── */
+  .cw-walk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 48px 40px;
+  }
+
+  /* ── Postcard card ────────────────────────────────────────────────────────── */
+  .cw-postcard-card {
+    border-radius: 6px;
+    padding: 10px;
+    height: 340px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .cw-postcard-card:hover { text-decoration: none; }
+
+  .cw-postcard-card:nth-child(3n+1) { transform: rotate(-1.4deg); }
+  .cw-postcard-card:nth-child(3n+2) { transform: rotate(1.1deg); }
+  .cw-postcard-card:nth-child(3n+3) { transform: rotate(-0.7deg); }
+  .cw-postcard-card:hover {
+    transform: rotate(0deg) translateY(-8px) !important;
+    box-shadow: 0 30px 80px -20px rgba(26,24,18,0.4), 0 8px 20px -8px rgba(26,24,18,0.2),
+                inset 0 0 0 8px rgba(255,255,255,0.45), inset 0 0 0 9px rgba(0,0,0,0.05) !important;
+  }
+
+  /* Tape strip at top */
+  .cw-postcard-tape {
+    width: 72px; height: 20px;
+    top: -9px; left: 50%; margin-left: -36px;
+    transform: rotate(-1.5deg);
+    z-index: 2;
+  }
+
+  /* Photo area */
+  .cw-card-photo {
+    height: 190px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.10);
+    flex-shrink: 0;
+  }
+  .cw-card-photo-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(90%) contrast(95%);
+  }
+  /* Fallback when no image: SVG route on cream */
+  .cw-card-route-fallback {
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, var(--cream-deep), var(--sand));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal);
+  }
+  .cw-card-route-fallback svg { opacity: 0.6; }
+
+  /* City name overlay on photo */
+  .cw-card-city-overlay {
+    position: absolute;
+    bottom: 8px; left: 10px;
+    font-family: var(--serif-display);
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255,233,168,0.95);
+    letter-spacing: -0.02em;
+    text-shadow: 2px 2px 0 rgba(193,60,32,0.65), 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* Mini stamp on photo */
+  .cw-card-stamp {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 40px; height: 48px;
+    transform: rotate(5deg);
+    z-index: 2;
+  }
+  .cw-card-stamp-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 6px;
+    line-height: 1.2;
+    text-align: center;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* Card text area */
+  .cw-card-text {
+    padding: 12px 6px 6px 6px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .cw-card-kicker {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--coral-deep);
+    margin-bottom: 4px;
+  }
+  .cw-card-title {
+    font-family: var(--serif-display);
+    font-size: 21px;
+    line-height: 1.05;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .cw-card-footer {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────────────────── */
+  .cw-page-footer {
+    padding: 28px 56px;
+    border-top: 1.5px dashed var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cw-footer-script {
+    font-family: var(--script);
+    font-size: 22px;
+    color: var(--ink-mute);
+  }
+  .cw-footer-mono {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* ── Map popup ───────────────────────────────────────────────────────────── */
+  .cw-map-popup {
+    font-family: var(--sans);
+    min-width: 160px;
+  }
+  .cw-map-popup-city {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 3px;
+  }
+  .cw-map-popup-title {
+    font-family: var(--serif-display);
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .cw-map-popup-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--coral-deep);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .cw-map-popup-link:hover { text-decoration: underline; }
+
+  /* Leaflet popup override */
+  .leaflet-popup-content-wrapper {
+    border-radius: 4px !important;
+    border: 1px solid rgba(0,0,0,0.10) !important;
+    box-shadow: 0 8px 24px -8px rgba(26,24,18,0.2) !important;
+    padding: 14px 16px !important;
+    background: var(--cream) !important;
+  }
+  .leaflet-popup-content { margin: 0 !important; }
+  .leaflet-popup-tip { background: var(--cream) !important; }
 </style>
 {% endblock %}
 
 {% block wide_content %}
 
-<!-- ── Hero map ─────────────────────────────────────────────────────────── -->
+<!-- ── Hero Leaflet map ──────────────────────────────────────────────────── -->
 <div class="cw-hero">
   <div id="cw-world-map" class="cw-map"></div>
-  <div class="cw-hero-veil"></div>
-  <div class="cw-hero-content">
-    <h1 class="cw-hero-title">Walk the world.</h1>
-    <div class="cw-hero-stats">
-      <span class="cw-hero-stat">
-        <span class="cw-hero-stat-n">{{ total_walks }}</span>
-        <span class="cw-hero-stat-l">walks</span>
-      </span>
-      <span class="cw-hero-sep">·</span>
-      <span class="cw-hero-stat">
-        <span class="cw-hero-stat-n">{{ total_cities }}</span>
-        <span class="cw-hero-stat-l">cities</span>
-      </span>
-      {% if total_km > 0 %}
-      <span class="cw-hero-sep">·</span>
-      <span class="cw-hero-stat">
-        <span class="cw-hero-stat-n">{{ total_km }}</span>
-        <span class="cw-hero-stat-l">km of routes</span>
-      </span>
-      {% endif %}
+</div>
+
+<!-- ── Headline section ──────────────────────────────────────────────────── -->
+<section class="cw-headline-section">
+  <!-- Decorative dashed flight-path lines -->
+  <svg class="cw-deco-lines" viewBox="0 0 1200 200" preserveAspectRatio="none">
+    <path d="M -50 80 Q 400 20, 900 100 T 1700 60" fill="none" stroke="#C13C20" stroke-width="1" stroke-dasharray="4 8" opacity="0.5"/>
+    <path d="M -50 160 Q 350 220, 800 150 T 1600 200" fill="none" stroke="#1F726E" stroke-width="1" stroke-dasharray="4 8" opacity="0.4"/>
+  </svg>
+  <div class="cw-headline-inner">
+    <div class="cw-headline-left">
+      <div class="cw-eyebrow-tag">A walking paper for the curious traveller</div>
+      <h1 class="cw-headline">
+        Walk<br>
+        <span class="from-word">the</span> <span class="city-word">World.</span>
+      </h1>
+      <div class="cw-sub-script"><span>—</span> curated routes through the cities you love.</div>
+      <div class="cw-stats-strip">
+        <div class="cw-stat-item">
+          <span class="cw-stat-n">{{ total_walks }}</span>
+          <span class="cw-stat-l">walks</span>
+        </div>
+        <div class="cw-stat-item">
+          <span class="cw-stat-n">{{ total_cities }}</span>
+          <span class="cw-stat-l">cities</span>
+        </div>
+        {% if total_km > 0 %}
+        <div class="cw-stat-item">
+          <span class="cw-stat-n">{{ total_km }}</span>
+          <span class="cw-stat-l">km of routes</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="cw-postmark-badge">
+      <div class="cw-postmark-circle">
+        <div>
+          <div>CITYWALKS</div>
+          <div class="cw-postmark-date">2026</div>
+          <div>★ ★ ★</div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- ── Walk grid ─────────────────────────────────────────────────────────── -->
 <div class="cw-body">
   {% if not walks %}
-  <div class="cw-empty">
-    <p>No walks found yet. Walk content lives in <code>content/</code> as markdown files with <code>type: walk</code>.</p>
-    <a href="https://github.com/richardosinga/city-walks" class="cw-empty-link">Contribute on GitHub →</a>
-  </div>
+  <p style="font-family: var(--script); font-size: 24px; color: var(--ink-mute);">No walks found yet — add markdown files with <code>type: walk</code> to content/</p>
   {% endif %}
 
   {% for city in cities %}
@@ -54,30 +425,62 @@
     </div>
     <div class="cw-walk-grid">
       {% for walk in city.walks %}
-      <a href="{{ walk.absolute_url }}" class="cw-card">
-        <div class="cw-card-route{% if not walk.route %} cw-card-route--empty{% endif %}">
-          {{ walk.route_svg|safe }}
+      {% with accent_colors="E85D3D,C13C20,1F726E,0E4F4C,1E3A5F,D8527A" %}
+      <a href="{{ walk.absolute_url }}" class="cw-postcard postcard">
+        <div class="tape cw-postcard-tape"></div>
+
+        <!-- Photo / route area -->
+        <div class="cw-card-photo">
+          {% if walk.image_url %}
+          <img src="{{ walk.image_url }}" alt="{{ walk.title }}" class="cw-card-photo-img">
+          {% else %}
+          <div class="cw-card-route-fallback">
+            {{ walk.route_svg|safe }}
+          </div>
+          {% endif %}
+
+          <!-- City name overlay -->
+          <div class="cw-card-city-overlay">{{ walk.city_name }}</div>
+
+          <!-- Mini stamp -->
+          <div class="stamp-edge cw-card-stamp">
+            <div class="cw-card-stamp-inner" style="background: var(--coral-deep);">
+              {{ walk.city_name|upper|truncatechars:10 }}
+            </div>
+          </div>
         </div>
-        <div class="cw-card-body">
-          <div class="cw-card-title">{{ walk.title }}</div>
-          <div class="cw-card-meta">
+
+        <!-- Card text -->
+        <div class="cw-card-text">
+          <div>
+            <div class="cw-card-kicker">{{ walk.continent }} · {{ walk.city_name }}</div>
+            <div class="cw-card-title">{{ walk.title }}</div>
+          </div>
+          <div class="cw-card-footer">
             {% if walk.distance_km > 0 %}
-            <span class="cw-meta-pill">{{ walk.distance_km }} km</span>
+            <span class="meta-pill">{{ walk.distance_km }} km</span>
             {% endif %}
             {% if walk.stops > 0 %}
-            <span class="cw-meta-pill">{{ walk.stops }} stop{{ walk.stops|pluralize }}</span>
+            <span class="meta-pill">{{ walk.stops }} stop{{ walk.stops|pluralize }}</span>
             {% endif %}
             {% if walk.duration_min > 0 %}
-            <span class="cw-meta-pill cw-meta-pill--muted">~{{ walk.duration_min }} min</span>
+            <span class="meta-pill" style="color: var(--ink-mute)">~{{ walk.duration_min }} min</span>
             {% endif %}
           </div>
         </div>
       </a>
+      {% endwith %}
       {% endfor %}
     </div>
   </section>
   {% endfor %}
 </div>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────── -->
+<footer class="cw-page-footer">
+  <div class="cw-footer-script">— written by people who walk.</div>
+  <div class="cw-footer-mono">CITYWALKS · World Edition · ©2026</div>
+</footer>
 
 {% endblock %}
 
@@ -103,35 +506,37 @@
     .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>')
     .addTo(map);
 
+  var colors = ['#E85D3D','#1F726E','#1E3A5F','#C13C20','#D8527A','#0E4F4C'];
   var allPoints = [];
 
-  allRoutes.forEach(function (walk) {
+  allRoutes.forEach(function (walk, idx) {
     if (!walk.route || walk.route.length < 2) return;
 
+    var color = colors[idx % colors.length];
     var line = L.polyline(walk.route, {
-      color: walk.color,
-      weight: 4,
-      opacity: 0.8,
+      color: color,
+      weight: 3.5,
+      opacity: 0.75,
     });
 
     var popup = L.popup({ closeButton: false, offset: [0, -4] }).setContent(
       '<div class="cw-map-popup">' +
         '<div class="cw-map-popup-city">' + walk.city + '</div>' +
         '<div class="cw-map-popup-title">' + walk.title + '</div>' +
-        '<a class="cw-map-popup-link" href="/walks/' + walk.path + '">See walk →</a>' +
+        '<a class="cw-map-popup-link" href="/' + walk.path + '">See walk →</a>' +
       '</div>'
     );
 
     line.on('mouseover', function () {
-      this.setStyle({ weight: 6, opacity: 1 });
+      this.setStyle({ weight: 5.5, opacity: 1 });
       this.openPopup(this.getCenter());
     });
     line.on('mouseout', function () {
-      this.setStyle({ weight: 4, opacity: 0.8 });
+      this.setStyle({ weight: 3.5, opacity: 0.75 });
       this.closePopup();
     });
     line.on('click', function () {
-      window.location.href = '/walks/' + walk.path;
+      window.location.href = '/' + walk.path;
     });
     line.bindPopup(popup);
     line.addTo(map);
@@ -139,7 +544,7 @@
   });
 
   if (allPoints.length) {
-    map.fitBounds(L.polyline(allPoints).getBounds().pad(0.15));
+    map.fitBounds(L.polyline(allPoints).getBounds().pad(0.12));
   } else {
     map.setView([25, 15], 2);
   }

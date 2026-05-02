@@ -3,67 +3,317 @@
 
 {% block body_style %}
 <style>
-  #content { display: block; min-height: 0; padding: 0; }
-  #sidebar  { display: none; }
+  /* ── Walk hero map ───────────────────────────────────────────────────────── */
+  .cw-walk-hero {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+  }
+  .cw-walk-map {
+    position: absolute; inset: 0;
+    filter: sepia(15%) saturate(85%);
+  }
+  .cw-walk-hero::after {
+    content: "";
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(transparent, var(--cream));
+    pointer-events: none;
+  }
+
+  /* Walk detail bar */
+  .cw-walk-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 0 2rem 1.5rem 2rem;
+    z-index: 10;
+  }
+  .cw-walk-back {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .cw-walk-back:hover { color: var(--ink); text-decoration: none; }
+
+  /* ── Walk header ─────────────────────────────────────────────────────────── */
+  .cw-walk-header {
+    padding: 48px 56px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cw-walk-header::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      radial-gradient(rgba(140,90,30,0.05) 1px, transparent 1.4px),
+      radial-gradient(rgba(140,90,30,0.04) 1px, transparent 1px);
+    background-size: 4px 4px, 9px 9px;
+    pointer-events: none;
+  }
+  .cw-walk-header-inner {
+    position: relative; z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1.5px dashed var(--rule);
+  }
+  .cw-walk-location {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--coral-deep);
+    margin-bottom: 10px;
+  }
+  .cw-walk-title {
+    font-family: var(--serif-display);
+    font-size: clamp(36px, 4vw, 58px);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    max-width: 640px;
+  }
+  .cw-walk-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  /* Postmark on header */
+  .cw-walk-postmark {
+    flex-shrink: 0;
+    width: 88px; height: 88px;
+    border: 2px solid var(--stamp-red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    transform: rotate(-8deg);
+    color: var(--stamp-red);
+    font-family: var(--mono);
+    font-size: 7.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.78;
+    line-height: 1.2;
+    margin-top: 8px;
+  }
+  .cw-walk-postmark-date {
+    font-family: var(--serif-display);
+    font-style: italic;
+    font-size: 16px;
+    margin: 2px 0;
+    letter-spacing: 0;
+  }
+
+  /* GPX button */
+  .cw-gpx-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+    border: 1.5px solid var(--teal-deep);
+    border-radius: 999px;
+    padding: 6px 14px;
+    text-decoration: none;
+    transition: background 150ms, color 150ms;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+  .cw-gpx-btn:hover {
+    background: var(--teal-deep); color: var(--cream);
+    text-decoration: none;
+  }
+
+  /* ── Walk content layout ─────────────────────────────────────────────────── */
+  .cw-walk-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    padding: 0 56px 80px 56px;
+    margin-top: 48px;
+  }
+
+  /* ── Waypoints sidebar ───────────────────────────────────────────────────── */
+  .cw-waypoints {
+    border-right: 1.5px dashed var(--rule);
+    padding-right: 40px;
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+  .cw-waypoints-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 20px;
+  }
+  .cw-waypoints-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cw-waypoint {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .cw-waypoint-num {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: var(--serif-display);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  .cw-waypoint-name {
+    font-family: var(--serif-body);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.25;
+  }
+
+  /* ── Walk article ────────────────────────────────────────────────────────── */
+  .cw-walk-article {
+    padding-left: 48px;
+    max-width: 700px;
+  }
+  .cw-walk-article h1,
+  .cw-walk-article h2,
+  .cw-walk-article h3 {
+    font-family: var(--serif-display);
+    font-style: italic;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 1.5em 0 0.5em;
+  }
+  .cw-walk-article h1 { font-size: 32px; }
+  .cw-walk-article h2 { font-size: 26px; }
+  .cw-walk-article h3 { font-size: 20px; }
+  .cw-walk-article p {
+    font-family: var(--serif-body);
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin-bottom: 1em;
+  }
+  .cw-walk-article p:first-child::first-letter {
+    font-family: var(--serif-display);
+    font-size: 4em;
+    font-weight: 900;
+    font-style: italic;
+    float: left;
+    line-height: 0.8;
+    margin-right: 8px;
+    color: var(--coral);
+  }
+  .cw-walk-article ul, .cw-walk-article ol {
+    font-family: var(--serif-body);
+    font-size: 17px;
+    color: var(--ink-soft);
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+  }
+  .cw-walk-article a { color: var(--coral-deep); }
+
+  /* Walk marker */
+  .cw-walk-marker {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: white;
+    font-family: var(--serif-display);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
 </style>
 {% endblock %}
 
 {% block wide_content %}
 
-<!-- ── Walk hero ─────────────────────────────────────────────────────────── -->
+<!-- ── Walk hero map ─────────────────────────────────────────────────────── -->
 <div class="cw-walk-hero">
   <div id="cw-walk-map" class="cw-walk-map"></div>
-  <div class="cw-walk-hero-bar">
-    <div class="cw-walk-hero-bar-inner">
-      <a href="/walks/" class="cw-walk-back">← All walks</a>
-      <div class="cw-walk-hero-meta">
-        <span class="cw-walk-city">{{ walk.city_name }}</span>
+  <div class="cw-walk-bar">
+    <a href="/" class="cw-walk-back">← All walks</a>
+  </div>
+</div>
+
+<!-- ── Walk header ──────────────────────────────────────────────────────── -->
+<div class="cw-walk-header">
+  <div class="cw-walk-header-inner">
+    <div>
+      <div class="cw-walk-location">{{ walk.continent }} · {{ walk.city_name }}</div>
+      <h1 class="cw-walk-title">{{ walk.title }}</h1>
+      <div class="cw-walk-pills">
         {% if walk.distance_km > 0 %}
-        <span class="cw-meta-pill">{{ walk.distance_km }} km</span>
+        <span class="meta-pill">{{ walk.distance_km }} km</span>
         {% endif %}
         {% if walk.stops > 0 %}
-        <span class="cw-meta-pill">{{ walk.stops }} stop{{ walk.stops|pluralize }}</span>
+        <span class="meta-pill">{{ walk.stops }} stop{{ walk.stops|pluralize }}</span>
         {% endif %}
         {% if walk.duration_min > 0 %}
-        <span class="cw-meta-pill cw-meta-pill--muted">~{{ walk.duration_min }} min</span>
+        <span class="meta-pill">~{{ walk.duration_min }} min</span>
         {% endif %}
         <a href="{{ walk.gpx_url }}" class="cw-gpx-btn" download>↓ GPX</a>
+      </div>
+    </div>
+    <div class="cw-walk-postmark">
+      <div>
+        <div>CITYWALKS</div>
+        <div class="cw-walk-postmark-date">2026</div>
+        <div>★ ★ ★</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── Walk content ───────────────────────────────────────────────────────── -->
+<!-- ── Walk content ──────────────────────────────────────────────────────── -->
 <div class="cw-walk-layout">
-
-  <!-- Waypoints sidebar -->
   {% if waypoints %}
   <aside class="cw-waypoints">
-    <h3 class="cw-waypoints-title">Stops</h3>
+    <div class="cw-waypoints-label">Stops on this walk</div>
     <ol class="cw-waypoints-list">
       {% for wp in waypoints %}
       <li class="cw-waypoint">
         <span class="cw-waypoint-num">{{ forloop.counter }}</span>
-        <div class="cw-waypoint-info">
-          <div class="cw-waypoint-name">{{ wp.title }}</div>
-          {% if wp.snippet %}
-          <div class="cw-waypoint-snippet">{{ wp.snippet }}</div>
-          {% endif %}
-        </div>
+        <div class="cw-waypoint-name">{{ wp.title }}</div>
       </li>
       {% endfor %}
     </ol>
   </aside>
   {% endif %}
 
-  <!-- Walk body -->
   <article class="cw-walk-article">
-    <h1 class="cw-walk-title">{{ walk.title }}</h1>
-    <div class="cw-walk-body">
-      {{ walk.body|safe }}
-    </div>
+    {{ walk.body|safe }}
   </article>
-
 </div>
 
 {% endblock %}
@@ -71,11 +321,13 @@
 {% block extra_js %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  .cw-walk-marker { font-size: 11px; }
+</style>
 <script>
 (function () {
   var route = {{ route_json|safe }};
   var waypoints = {{ waypoints_json|safe }};
-  var W66_RED = '#b8532b';
 
   var map = L.map('cw-walk-map', {
     scrollWheelZoom: false,
@@ -93,14 +345,14 @@
     .addTo(map);
 
   if (route.length) {
-    L.polyline(route, { color: W66_RED, weight: 4, opacity: 0.85, interactive: false }).addTo(map);
+    L.polyline(route, { color: '#E85D3D', weight: 4, opacity: 0.85, interactive: false }).addTo(map);
   }
 
   waypoints.forEach(function (wp, i) {
     if (wp.lat == null || wp.lng == null) return;
     var icon = L.divIcon({
       className: 'cw-walk-marker',
-      html: String(i + 1),
+      html: '<div class="cw-walk-marker">' + (i + 1) + '</div>',
       iconSize: [26, 26],
       iconAnchor: [13, 13],
     });
@@ -111,10 +363,10 @@
 
   var bounds = route.length ? L.polyline(route).getBounds() : null;
   if (bounds) {
-    map.fitBounds(bounds.pad(0.18));
+    map.fitBounds(bounds.pad(0.2));
   } else if (waypoints.length) {
-    var pts = waypoints.filter(function (w) { return w.lat != null; }).map(function (w) { return [w.lat, w.lng]; });
-    if (pts.length) map.fitBounds(L.polyline(pts).getBounds().pad(0.18));
+    var pts = waypoints.filter(function(w) { return w.lat != null; }).map(function(w) { return [w.lat, w.lng]; });
+    if (pts.length) map.fitBounds(L.polyline(pts).getBounds().pad(0.2));
   }
 }());
 </script>

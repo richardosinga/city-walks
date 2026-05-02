@@ -101,11 +101,11 @@ class Walk:
 
     @property
     def absolute_url(self) -> str:
-        return f"/walks/{self.path}"
+        return f"/{self.path}"
 
     @property
     def gpx_url(self) -> str:
-        return f"/walks/{self.path}.gpx"
+        return f"/{self.path}.gpx"
 
 
 # ---------------------------------------------------------------------------
