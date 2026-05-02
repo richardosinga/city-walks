@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import re
 import xml.etree.ElementTree as ET
+
+import markdown as _md
 from pathlib import Path
 
 import mimetypes
@@ -64,12 +66,90 @@ def home(request):
     })
 
 
+def _md_to_html(text: str) -> str:
+    """Convert markdown to HTML, rewriting internal POI links to data-poi attrs."""
+    # Rewrite [Name](/path) → <a data-poi="/path">Name</a> for POI links
+    def rewrite_link(m):
+        label, href = m.group(1), m.group(2)
+        if href.startswith("/") and not href.endswith((".gpx", ".jpg", ".png")):
+            return f'<a class="poi-link" data-poi="{href}">{label}</a>'
+        return f'<a href="{href}">{label}</a>'
+
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', rewrite_link, text)
+    return _md.markdown(text, extensions=["nl2br"])
+
+
+def _split_walk_sections(walk_body: str, waypoints: list) -> list:
+    """Split prose into sections keyed by waypoint, preserving intro text.
+
+    Returns a list of dicts: {slug, heading_text, html}
+    Intro text (before first waypoint mention) gets slug=None.
+    """
+    if not waypoints:
+        return [{"slug": None, "heading_text": None, "html": _md_to_html(walk_body)}]
+
+    slug_set = {wp["slug"] for wp in waypoints}
+    slug_order = [wp["slug"] for wp in waypoints]
+
+    # Find the character position of the first mention of each waypoint slug
+    slug_positions = {}
+    for slug in slug_set:
+        # Match markdown links like (/.../{slug}) or just the slug in a link
+        m = re.search(r'\([^)]*/' + re.escape(slug) + r'\)', walk_body)
+        if m:
+            slug_positions[slug] = m.start()
+
+    # Sort found slugs by their position in the text
+    ordered = sorted(
+        [(pos, slug) for slug, pos in slug_positions.items()],
+        key=lambda x: x[0]
+    )
+
+    if not ordered:
+        # No matches in text — return single section
+        return [{"slug": None, "heading_text": None, "html": _md_to_html(walk_body)}]
+
+    sections = []
+    prev_end = 0
+
+    for i, (pos, slug) in enumerate(ordered):
+        # Find the paragraph boundary just before this mention
+        # Walk backwards to start of the paragraph containing the link
+        para_start = walk_body.rfind("\n\n", 0, pos)
+        para_start = para_start + 2 if para_start != -1 else 0
+
+        # Text before this waypoint (intro or between waypoints)
+        before = walk_body[prev_end:para_start].strip()
+        if before:
+            prev_slug = ordered[i - 1][1] if i > 0 else None
+            prev_wp = next((w for w in waypoints if w["slug"] == prev_slug), None)
+            sections.append({
+                "slug": prev_slug,
+                "heading_text": prev_wp["title"] if prev_wp else None,
+                "html": _md_to_html(before),
+            })
+
+        prev_end = para_start
+
+    # Last section: remaining text from last waypoint paragraph onwards
+    remaining = walk_body[prev_end:].strip()
+    if remaining:
+        last_slug = ordered[-1][1]
+        last_wp = next((w for w in waypoints if w["slug"] == last_slug), None)
+        sections.append({
+            "slug": last_slug,
+            "heading_text": last_wp["title"] if last_wp else None,
+            "html": _md_to_html(remaining),
+        })
+
+    return sections
+
+
 def walk_detail(request, path):
     walk = load_walk(path)
     if not walk:
         raise Http404
 
-    # Load full waypoint POI data for the map
     city_path = walk.city_path
     waypoints_data = []
     for slug in walk.waypoints:
@@ -81,7 +161,7 @@ def walk_detail(request, path):
                 "lat": poi.latitude or None,
                 "lng": poi.longitude or None,
                 "snippet": poi.meta.get("snippet", ""),
-                "body": poi.body or "",
+                "body": _md_to_html(poi.body) if poi.body else "",
                 "category": poi.meta.get("category", ""),
             })
         else:
@@ -91,11 +171,14 @@ def walk_detail(request, path):
                 "lat": None, "lng": None, "snippet": "", "body": "", "category": "",
             })
 
+    sections = _split_walk_sections(walk.body, waypoints_data)
+
     return render(request, "city_walks_app/walk.html", {
         "walk": walk,
         "route_json": json.dumps(walk.route),
         "waypoints_json": json.dumps(waypoints_data),
         "waypoints": waypoints_data,
+        "sections": sections,
     })
 
 

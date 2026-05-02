@@ -5,50 +5,35 @@
 <style>
   body { overflow: hidden; height: 100vh; }
 
-  /* ── Full-screen split layout ─────────────────────────────────────────── */
+  /* ── Full-screen split ───────────────────────────────────────────────── */
   .cw-split {
     display: grid;
     grid-template-columns: 1fr 440px;
-    height: calc(100vh - 56px);   /* minus site header */
+    height: calc(100vh - 56px);
     overflow: hidden;
   }
 
-  /* ── Map panel ────────────────────────────────────────────────────────── */
-  .cw-map-panel {
-    position: relative;
-    overflow: hidden;
-  }
-  #cw-walk-map {
-    position: absolute; inset: 0;
-    filter: sepia(15%) saturate(85%);
-  }
-  /* Fade edges into cream paper */
+  /* ── Map panel ───────────────────────────────────────────────────────── */
+  .cw-map-panel { position: relative; overflow: hidden; }
+  #cw-walk-map { position: absolute; inset: 0; filter: sepia(15%) saturate(85%); }
   .cw-map-panel::after {
     content: "";
     position: absolute; inset: 0;
-    background:
-      linear-gradient(to right, transparent 75%, var(--cream) 100%),
-      linear-gradient(to bottom, var(--cream) 0%, transparent 60px);
+    background: linear-gradient(to right, transparent 75%, var(--cream) 100%),
+                linear-gradient(to bottom, var(--cream) 0%, transparent 64px);
     pointer-events: none;
   }
-  /* Back link */
   .cw-walk-back {
     position: absolute; top: 16px; left: 16px; z-index: 20;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink);
-    background: var(--cream);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 6px 14px;
-    text-decoration: none;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--ink);
+    background: var(--cream); border: 1px solid var(--rule);
+    border-radius: 999px; padding: 6px 14px; text-decoration: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   }
   .cw-walk-back:hover { background: var(--ink); color: var(--cream); text-decoration: none; }
 
-  /* ── Card panel ───────────────────────────────────────────────────────── */
+  /* ── Card panel ──────────────────────────────────────────────────────── */
   .cw-card-panel {
     background: var(--cream);
     background-image:
@@ -56,24 +41,18 @@
       radial-gradient(rgba(140,90,30,0.04) 1px, transparent 1px);
     background-size: 4px 4px, 9px 9px;
     border-left: 1.5px dashed var(--rule);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
   }
 
-  /* ── Card stage (the area cards live in) ─────────────────────────────── */
+  /* ── Stage ───────────────────────────────────────────────────────────── */
   .cw-stage {
-    flex: 1;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 28px;
-    overflow: hidden;
+    flex: 1; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 28px; overflow: hidden;
   }
 
-  /* ── Postcard card ────────────────────────────────────────────────────── */
+  /* ── Postcard ────────────────────────────────────────────────────────── */
   .cw-flip-card {
     position: absolute;
     width: calc(100% - 56px);
@@ -84,314 +63,216 @@
     box-shadow: 0 24px 64px -20px rgba(26,24,18,0.35), 0 4px 14px -6px rgba(26,24,18,0.14),
                 inset 0 0 0 8px rgba(255,255,255,0.45), inset 0 0 0 9px rgba(0,0,0,0.05);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    /* transition handled by JS class toggling */
+    display: flex; flex-direction: column;
     transition: transform 320ms cubic-bezier(.4,0,.2,1), opacity 320ms ease;
     will-change: transform, opacity;
   }
   .cw-flip-card::before {
-    content: "";
-    position: absolute; inset: 14px;
+    content: ""; position: absolute; inset: 14px;
     border: 1.5px dashed rgba(184,60,36,0.28);
-    pointer-events: none;
-    z-index: 1;
+    pointer-events: none; z-index: 1;
   }
 
   /* Card states */
-  .cw-flip-card.state-current  { transform: translateX(0) rotate(0deg); opacity: 1; }
-  .cw-flip-card.state-exit-left  { transform: translateX(-110%) rotate(-6deg); opacity: 0; }
-  .cw-flip-card.state-exit-right { transform: translateX(110%)  rotate(6deg);  opacity: 0; }
-  .cw-flip-card.state-enter-left  { transform: translateX(-110%) rotate(-6deg); opacity: 0; transition: none; }
-  .cw-flip-card.state-enter-right { transform: translateX(110%)  rotate(6deg);  opacity: 0; transition: none; }
+  .state-current    { transform: translateX(0)     rotate(0deg);  opacity: 1; z-index: 5; }
+  .state-exit-left  { transform: translateX(-110%) rotate(-6deg); opacity: 0; z-index: 4; }
+  .state-exit-right { transform: translateX(110%)  rotate(6deg);  opacity: 0; z-index: 4; }
+  .state-enter-left  { transform: translateX(-110%) rotate(-6deg); opacity: 0; transition: none; z-index: 3; }
+  .state-enter-right { transform: translateX(110%)  rotate(6deg);  opacity: 0; transition: none; z-index: 3; }
 
-  /* Stacked cards behind */
+  /* Ghost stack */
   .cw-stack-ghost {
-    position: absolute;
-    width: calc(100% - 56px);
-    max-height: calc(100% - 48px);
-    background: var(--cream);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 6px;
+    position: absolute; width: calc(100% - 56px); max-height: calc(100% - 48px);
+    background: var(--cream); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px;
     pointer-events: none;
   }
-  .cw-stack-ghost-1 {
-    transform: translateY(6px) rotate(1.5deg);
-    box-shadow: 0 8px 24px -10px rgba(26,24,18,0.15);
-    z-index: 0;
-  }
-  .cw-stack-ghost-2 {
-    transform: translateY(12px) rotate(-1deg);
-    box-shadow: 0 4px 12px -6px rgba(26,24,18,0.10);
-    z-index: -1;
+  .cw-stack-ghost-1 { transform: translateY(6px)  rotate(1.5deg); box-shadow: 0 8px 24px -10px rgba(26,24,18,0.15); z-index: 0; }
+  .cw-stack-ghost-2 { transform: translateY(12px) rotate(-1deg);  box-shadow: 0 4px 12px -6px rgba(26,24,18,0.10);  z-index: -1; }
+
+  /* Tape */
+  .cw-card-tape {
+    position: absolute; width: 72px; height: 20px;
+    top: -9px; left: 50%; margin-left: -36px; z-index: 10;
+    background: rgba(255,229,168,0.72);
+    border-left: 1px dashed rgba(0,0,0,0.09); border-right: 1px dashed rgba(0,0,0,0.09);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.07); transform: rotate(-1.5deg);
   }
 
-  /* ── Card: intro (stop 0) ─────────────────────────────────────────────── */
-  .cw-card-intro {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .cw-card-intro-photo {
-    height: 160px;
-    flex-shrink: 0;
-    overflow: hidden;
-    position: relative;
-  }
-  .cw-card-intro-photo img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    filter: saturate(88%) contrast(95%);
-  }
-  .cw-card-intro-photo-fallback {
-    width: 100%; height: 100%;
-    background: linear-gradient(145deg, var(--cream-deep, #ECDDB8), var(--sand, #E8C988));
-  }
+  /* ── Intro card ──────────────────────────────────────────────────────── */
+  .cw-card-intro { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .cw-card-intro-photo { height: 150px; flex-shrink: 0; overflow: hidden; position: relative; }
+  .cw-card-intro-photo img { width: 100%; height: 100%; object-fit: cover; filter: saturate(88%) contrast(95%); }
+  .cw-card-intro-photo-fallback { width: 100%; height: 100%; background: linear-gradient(145deg, var(--cream-deep,#ECDDB8), #E8C988); }
   .cw-card-intro-photo-overlay {
     position: absolute; bottom: 0; left: 0; right: 0;
     background: linear-gradient(transparent, rgba(26,24,18,0.55));
-    padding: 24px 18px 14px;
-    color: rgba(255,233,168,0.95);
-    font-family: var(--serif-display);
-    font-size: 26px;
-    font-weight: 900;
-    font-style: italic;
-    letter-spacing: -0.02em;
-    text-shadow: 2px 2px 0 rgba(193,60,32,0.5);
-    line-height: 1;
+    padding: 22px 16px 12px;
+    font-family: var(--serif-display); font-size: 24px; font-weight: 900; font-style: italic;
+    color: rgba(255,233,168,0.95); letter-spacing: -0.02em;
+    text-shadow: 2px 2px 0 rgba(193,60,32,0.5); line-height: 1;
   }
-  .cw-card-intro-body {
-    padding: 18px 22px;
-    overflow-y: auto;
-    flex: 1;
-    position: relative; z-index: 2;
-  }
-  .cw-card-location {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--coral-deep, #C13C20);
-    margin-bottom: 8px;
-  }
-  .cw-card-walk-title {
-    font-family: var(--serif-display);
-    font-size: 22px;
-    font-weight: 700;
-    font-style: italic;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
-    color: var(--ink);
-    margin-bottom: 12px;
-  }
-  .cw-card-walk-prose {
-    font-family: var(--serif-body, 'Cormorant Garamond', Georgia, serif);
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--ink-soft, #3A342A);
-  }
-  .cw-card-walk-prose p { margin-bottom: 0.7em; }
-  .cw-card-walk-pills {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    margin-top: 10px; padding-top: 10px;
-    border-top: 1px dashed var(--rule, #C9B88D);
-  }
+  .cw-card-intro-body { padding: 16px 20px; overflow-y: auto; flex: 1; position: relative; z-index: 2; }
+  .cw-card-location { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--coral-deep,#C13C20); margin-bottom: 6px; }
+  .cw-card-walk-title { font-family: var(--serif-display); font-size: 21px; font-weight: 700; font-style: italic; letter-spacing: -0.015em; line-height: 1.1; color: var(--ink); margin-bottom: 10px; }
+  .cw-card-walk-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule,#C9B88D); }
 
-  /* ── Card: stop ──────────────────────────────────────────────────────── */
-  .cw-card-stop {
+  /* ── Section card (walk prose) ───────────────────────────────────────── */
+  .cw-card-section {
     flex: 1; display: flex; flex-direction: column;
-    padding: 26px 22px 22px 22px;
-    overflow: hidden;
+    padding: 26px 22px 52px 22px; overflow: hidden;
     position: relative; z-index: 2;
   }
-  .cw-stop-number {
-    font-family: var(--serif-display);
-    font-size: 72px;
-    font-weight: 900;
-    font-style: italic;
-    line-height: 0.85;
-    color: rgba(232,93,61,0.15);
-    letter-spacing: -0.04em;
-    position: absolute; top: 18px; right: 18px;
-    pointer-events: none;
-    z-index: 0;
+  .cw-section-stop-num {
+    font-family: var(--serif-display); font-size: 64px; font-weight: 900; font-style: italic;
+    line-height: 0.85; color: rgba(232,93,61,0.12); letter-spacing: -0.04em;
+    position: absolute; top: 16px; right: 16px; pointer-events: none; z-index: 0;
   }
-  .cw-stop-category {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--coral-deep, #C13C20);
-    margin-bottom: 6px;
-    position: relative; z-index: 2;
+  .cw-section-heading {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--coral-deep,#C13C20); margin-bottom: 10px; position: relative; z-index: 2;
   }
-  .cw-stop-title {
-    font-family: var(--serif-display);
-    font-size: 28px;
-    font-weight: 700;
-    font-style: italic;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-    color: var(--ink);
-    margin-bottom: 14px;
-    position: relative; z-index: 2;
+  .cw-section-body {
+    flex: 1; overflow-y: auto; position: relative; z-index: 2;
+    font-family: var(--serif-body,'Cormorant Garamond',Georgia,serif);
+    font-size: 16px; line-height: 1.72; color: var(--ink-soft,#3A342A);
   }
-  .cw-stop-body {
-    flex: 1;
-    overflow-y: auto;
-    font-family: var(--serif-body, 'Cormorant Garamond', Georgia, serif);
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--ink-soft, #3A342A);
-    position: relative; z-index: 2;
+  .cw-section-body p { margin-bottom: 0.8em; }
+  .cw-section-body p:first-child::first-letter {
+    font-family: var(--serif-display); font-size: 3.2em; font-weight: 900; font-style: italic;
+    float: left; line-height: 0.8; margin-right: 6px; color: var(--coral,#E85D3D);
   }
-  .cw-stop-body p { margin-bottom: 0.75em; }
-  .cw-stop-body p:first-child::first-letter {
-    font-family: var(--serif-display);
-    font-size: 3.2em;
-    font-weight: 900;
-    font-style: italic;
-    float: left;
-    line-height: 0.8;
-    margin-right: 6px;
-    color: var(--coral, #E85D3D);
+  /* POI inline links */
+  .cw-section-body .poi-link {
+    color: var(--coral-deep,#C13C20); border-bottom: 1.5px dashed var(--coral,#E85D3D);
+    cursor: pointer; text-decoration: none; font-style: inherit;
   }
+  .cw-section-body .poi-link:hover { background: rgba(232,93,61,0.08); text-decoration: none; }
 
-  /* Tape strip */
-  .cw-card-tape {
-    position: absolute;
-    width: 72px; height: 20px;
-    top: -9px; left: 50%; margin-left: -36px;
-    background: rgba(255,229,168,0.72);
-    border-left: 1px dashed rgba(0,0,0,0.09);
-    border-right: 1px dashed rgba(0,0,0,0.09);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.07);
-    transform: rotate(-1.5deg);
-    z-index: 10;
-  }
-
-  /* Postmark corner */
+  /* Postmark */
   .cw-card-postmark {
-    position: absolute;
-    bottom: 20px; right: 18px;
-    width: 58px; height: 58px;
-    border: 2px solid var(--stamp-red, #B83C24);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    text-align: center;
-    transform: rotate(-8deg);
-    color: var(--stamp-red, #B83C24);
-    font-family: var(--mono);
-    font-size: 6.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.65;
-    line-height: 1.2;
-    pointer-events: none;
-    z-index: 3;
+    position: absolute; bottom: 18px; right: 16px;
+    width: 54px; height: 54px; border: 2px solid var(--stamp-red,#B83C24); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    transform: rotate(-8deg); color: var(--stamp-red,#B83C24);
+    font-family: var(--mono); font-size: 6px; letter-spacing: 0.08em; text-transform: uppercase;
+    opacity: 0.6; line-height: 1.25; pointer-events: none; z-index: 3;
   }
 
-  /* ── Navigation bar ──────────────────────────────────────────────────── */
-  .cw-nav {
-    flex-shrink: 0;
-    padding: 14px 28px 18px 28px;
-    border-top: 1.5px dashed var(--rule, #C9B88D);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+  /* ── POI detail card (slides from left) ──────────────────────────────── */
+  .cw-poi-panel {
+    position: absolute; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 28px;
+    pointer-events: none;
+  }
+  .cw-poi-card {
+    width: calc(100% - 56px); max-height: calc(100% - 48px);
     background: var(--cream);
-    position: relative; z-index: 10;
+    border: 1px solid rgba(0,0,0,0.09);
+    border-radius: 6px;
+    box-shadow: 0 28px 72px -20px rgba(26,24,18,0.4), 0 6px 18px -8px rgba(26,24,18,0.18),
+                inset 0 0 0 8px rgba(255,255,255,0.45), inset 0 0 0 9px rgba(0,0,0,0.05);
+    overflow: hidden; display: flex; flex-direction: column;
+    transform: translateX(-110%) rotate(-5deg);
+    opacity: 0;
+    transition: transform 350ms cubic-bezier(.4,0,.2,1), opacity 350ms ease;
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+  .cw-poi-card.open {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+    pointer-events: all;
+  }
+  .cw-poi-panel.open { pointer-events: all; }
+  /* Dashed border like other postcards */
+  .cw-poi-card::before {
+    content: ""; position: absolute; inset: 14px;
+    border: 1.5px dashed rgba(31,114,110,0.35); pointer-events: none; z-index: 1;
+  }
+  .cw-poi-card-header {
+    padding: 18px 20px 12px 20px; border-bottom: 1.5px dashed var(--rule,#C9B88D);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    position: relative; z-index: 2; flex-shrink: 0;
+  }
+  .cw-poi-card-category { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal,#1F726E); margin-bottom: 4px; }
+  .cw-poi-card-title { font-family: var(--serif-display); font-size: 22px; font-weight: 700; font-style: italic; letter-spacing: -0.015em; line-height: 1.05; color: var(--ink); }
+  .cw-poi-close {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--rule,#C9B88D); background: var(--cream);
+    cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    color: var(--ink-mute,#6B6557); transition: background 130ms, color 130ms; margin-top: 2px;
+  }
+  .cw-poi-close:hover { background: var(--ink); color: var(--cream); }
+  .cw-poi-card-body {
+    flex: 1; overflow-y: auto; padding: 16px 20px 20px 20px; position: relative; z-index: 2;
+    font-family: var(--serif-body,'Cormorant Garamond',Georgia,serif);
+    font-size: 16px; line-height: 1.72; color: var(--ink-soft,#3A342A);
+  }
+  .cw-poi-card-body p { margin-bottom: 0.75em; }
+  .cw-poi-card-body p:first-child::first-letter {
+    font-family: var(--serif-display); font-size: 3em; font-weight: 900; font-style: italic;
+    float: left; line-height: 0.8; margin-right: 6px; color: var(--teal,#1F726E);
+  }
+  /* Tape on POI card */
+  .cw-poi-tape {
+    position: absolute; width: 64px; height: 18px;
+    top: -8px; left: 50%; margin-left: -32px; z-index: 10;
+    background: rgba(111,189,184,0.55);
+    border-left: 1px dashed rgba(0,0,0,0.09); border-right: 1px dashed rgba(0,0,0,0.09);
+    transform: rotate(1.5deg);
+  }
+
+  /* ── Navigation ──────────────────────────────────────────────────────── */
+  .cw-nav {
+    flex-shrink: 0; padding: 14px 28px 18px 28px;
+    border-top: 1.5px dashed var(--rule,#C9B88D);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--cream); position: relative; z-index: 10;
   }
   .cw-nav-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    border: 2px solid var(--ink);
-    background: var(--cream);
-    color: var(--ink);
-    cursor: pointer;
-    font-size: 18px;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--ink); background: var(--cream); color: var(--ink);
+    cursor: pointer; font-size: 18px;
     display: flex; align-items: center; justify-content: center;
-    transition: background 140ms, color 140ms, transform 140ms;
-    flex-shrink: 0;
+    transition: background 140ms, color 140ms, transform 140ms; flex-shrink: 0;
   }
   .cw-nav-btn:hover { background: var(--ink); color: var(--cream); transform: scale(1.06); }
   .cw-nav-btn:disabled { opacity: 0.28; cursor: default; transform: none; }
   .cw-nav-btn:disabled:hover { background: var(--cream); color: var(--ink); }
 
-  /* Progress dots */
-  .cw-nav-dots {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex: 1;
-  }
-  .cw-nav-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--rule, #C9B88D);
-    cursor: pointer;
-    transition: background 200ms, transform 200ms;
-  }
-  .cw-nav-dot.active {
-    background: var(--coral, #E85D3D);
-    transform: scale(1.45);
-  }
+  .cw-nav-dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; flex: 1; }
+  .cw-nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rule,#C9B88D); cursor: pointer; transition: background 200ms, transform 200ms; }
+  .cw-nav-dot.active { background: var(--coral,#E85D3D); transform: scale(1.45); }
 
-  /* GPX link */
   .cw-gpx-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--teal-deep, #0E4F4C);
-    border: 1.5px solid var(--teal-deep, #0E4F4C);
-    border-radius: 999px;
-    padding: 5px 11px;
-    text-decoration: none;
-    transition: background 140ms, color 140ms;
-    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--teal-deep,#0E4F4C); border: 1.5px solid var(--teal-deep,#0E4F4C);
+    border-radius: 999px; padding: 5px 11px; text-decoration: none;
+    transition: background 140ms, color 140ms; flex-shrink: 0;
   }
-  .cw-gpx-btn:hover { background: var(--teal-deep, #0E4F4C); color: var(--cream); text-decoration: none; }
+  .cw-gpx-btn:hover { background: var(--teal-deep,#0E4F4C); color: var(--cream); text-decoration: none; }
 
-  /* ── Walk marker (Leaflet) ───────────────────────────────────────────── */
+  /* ── Walk markers ────────────────────────────────────────────────────── */
   .cw-walk-marker {
-    width: 28px; height: 28px;
-    border-radius: 50%;
+    width: 28px; height: 28px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--serif-display);
-    font-weight: 700;
-    font-size: 12px;
-    color: white;
-    border: 2px solid white;
+    font-family: var(--serif-display); font-weight: 700; font-size: 12px;
+    color: white; border: 2px solid white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    transition: transform 250ms;
-    background: var(--ink);
+    background: var(--ink); transition: transform 250ms;
   }
   .cw-walk-marker.active {
-    background: var(--coral, #E85D3D);
-    transform: scale(1.35);
+    background: var(--coral,#E85D3D); transform: scale(1.35);
     box-shadow: 0 0 0 3px rgba(232,93,61,0.35), 0 4px 12px rgba(0,0,0,0.3);
   }
-
-  /* Tooltip override */
   .leaflet-popup-content-wrapper {
-    border-radius: 4px !important;
-    border: 1px solid rgba(0,0,0,0.10) !important;
+    border-radius: 4px !important; border: 1px solid rgba(0,0,0,0.10) !important;
     box-shadow: 0 8px 24px -8px rgba(26,24,18,0.2) !important;
-    padding: 10px 14px !important;
-    background: var(--cream) !important;
-    font-family: var(--serif-display) !important;
-    font-style: italic !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: var(--ink) !important;
+    padding: 10px 14px !important; background: var(--cream) !important;
+    font-family: var(--serif-display) !important; font-style: italic !important;
+    font-size: 14px !important; font-weight: 600 !important; color: var(--ink) !important;
   }
   .leaflet-popup-content { margin: 0 !important; }
   .leaflet-popup-tip { background: var(--cream) !important; }
@@ -401,38 +282,31 @@
 {% block wide_content %}
 <div class="cw-split">
 
-  <!-- ── Map panel ──────────────────────────────────────────────────────── -->
+  <!-- ── Map ────────────────────────────────────────────────────────────── -->
   <div class="cw-map-panel">
     <div id="cw-walk-map"></div>
     <a href="/" class="cw-walk-back">← All walks</a>
   </div>
 
-  <!-- ── Card panel ─────────────────────────────────────────────────────── -->
+  <!-- ── Cards ──────────────────────────────────────────────────────────── -->
   <div class="cw-card-panel">
     <div class="cw-stage" id="cw-stage">
 
-      <!-- Ghost stack behind current card -->
       <div class="cw-stack-ghost cw-stack-ghost-2"></div>
       <div class="cw-stack-ghost cw-stack-ghost-1"></div>
 
-      <!-- Card 0: walk intro -->
+      <!-- Card 0: intro -->
       <div class="cw-flip-card state-current" data-index="0">
         <div class="cw-card-tape"></div>
         <div class="cw-card-intro">
           <div class="cw-card-intro-photo">
-            {% if walk.image_url %}
-            <img src="{{ walk.image_url }}" alt="{{ walk.title }}">
-            {% else %}
-            <div class="cw-card-intro-photo-fallback"></div>
-            {% endif %}
+            {% if walk.image_url %}<img src="{{ walk.image_url }}" alt="{{ walk.title }}">
+            {% else %}<div class="cw-card-intro-photo-fallback"></div>{% endif %}
             <div class="cw-card-intro-photo-overlay">{{ walk.city_name }}</div>
           </div>
           <div class="cw-card-intro-body">
             <div class="cw-card-location">{{ walk.continent }} · {{ walk.city_name }}</div>
             <div class="cw-card-walk-title">{{ walk.title }}</div>
-            <div class="cw-card-walk-prose">
-              {{ walk.body|linebreaks }}
-            </div>
             <div class="cw-card-walk-pills">
               {% if walk.distance_km > 0 %}<span class="meta-pill">{{ walk.distance_km }} km</span>{% endif %}
               {% if walk.stops > 0 %}<span class="meta-pill">{{ walk.stops }} stop{{ walk.stops|pluralize }}</span>{% endif %}
@@ -445,42 +319,51 @@
         </div>
       </div>
 
-      <!-- Cards 1…N: waypoints -->
-      {% for wp in waypoints %}
-      <div class="cw-flip-card state-enter-right" data-index="{{ forloop.counter }}" data-lat="{{ wp.lat|default:'' }}" data-lng="{{ wp.lng|default:'' }}">
+      <!-- Cards 1…N: walk prose sections -->
+      {% for section in sections %}
+      <div class="cw-flip-card state-enter-right" data-index="{{ forloop.counter }}" data-slug="{{ section.slug|default:'' }}">
         <div class="cw-card-tape"></div>
-        <div class="cw-card-stop">
-          <div class="cw-stop-number">{{ forloop.counter }}</div>
-          {% if wp.category %}<div class="cw-stop-category">{{ wp.category }}</div>{% endif %}
-          <div class="cw-stop-title">{{ wp.title }}</div>
-          <div class="cw-stop-body">
-            {% if wp.body %}
-              {{ wp.body|linebreaks }}
-            {% else %}
-              <p><em>No description available.</em></p>
-            {% endif %}
-          </div>
+        <div class="cw-card-section">
+          <div class="cw-section-stop-num">{{ forloop.counter }}</div>
+          {% if section.heading_text %}
+          <div class="cw-section-heading">Stop {{ forloop.counter }} — {{ section.heading_text }}</div>
+          {% else %}
+          <div class="cw-section-heading">{{ walk.city_name }}</div>
+          {% endif %}
+          <div class="cw-section-body">{{ section.html|safe }}</div>
         </div>
         <div class="cw-card-postmark">
-          <div><div>STOP {{ forloop.counter }}</div><div style="font-family:var(--serif-display);font-style:italic;font-size:11px;margin:1px 0;">{{ forloop.counter }}/{{ waypoints|length }}</div></div>
+          <div><div>{{ forloop.counter }}/{{ sections|length }}</div><div style="font-family:var(--serif-display);font-style:italic;font-size:11px;margin:1px 0;">2026</div></div>
         </div>
       </div>
       {% endfor %}
 
+      <!-- POI detail overlay (slides in from left) -->
+      <div class="cw-poi-panel" id="poi-panel">
+        <div class="cw-poi-card" id="poi-card">
+          <div class="cw-poi-tape"></div>
+          <div class="cw-poi-card-header">
+            <div>
+              <div class="cw-poi-card-category" id="poi-category"></div>
+              <div class="cw-poi-card-title" id="poi-title"></div>
+            </div>
+            <button class="cw-poi-close" id="poi-close" aria-label="Close">✕</button>
+          </div>
+          <div class="cw-poi-card-body" id="poi-body"></div>
+        </div>
+      </div>
+
     </div><!-- /cw-stage -->
 
-    <!-- Navigation -->
     <div class="cw-nav">
       <button class="cw-nav-btn" id="btn-prev" aria-label="Previous" disabled>←</button>
-      <div class="cw-nav-dots" id="nav-dots">
-        <!-- filled by JS -->
-      </div>
+      <div class="cw-nav-dots" id="nav-dots"></div>
       <a href="{{ walk.gpx_url }}" class="cw-gpx-btn" download>↓ GPX</a>
       <button class="cw-nav-btn" id="btn-next" aria-label="Next">→</button>
     </div>
   </div>
 
-</div><!-- /cw-split -->
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -488,63 +371,71 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function () {
-  /* ── Data ────────────────────────────────────────────────────────────── */
   var route     = {{ route_json|safe }};
   var waypoints = {{ waypoints_json|safe }};
-  var totalCards = {{ waypoints|length }} + 1;   // intro + stops
+
+  /* ── Section metadata (slug → stop index) ─────────────────────────── */
+  var cards = Array.from(document.querySelectorAll('.cw-flip-card'));
+  var totalCards = cards.length;
   var current = 0;
 
-  /* ── Map ─────────────────────────────────────────────────────────────── */
-  var map = L.map('cw-walk-map', {
-    scrollWheelZoom: true,
-    zoomControl: false,
-    attributionControl: false,
-  });
+  // Build slug → waypoint index lookup
+  var slugToWpIdx = {};
+  waypoints.forEach(function(wp, i) { slugToWpIdx[wp.slug] = i; });
+
+  /* ── Map ─────────────────────────────────────────────────────────── */
+  var map = L.map('cw-walk-map', { scrollWheelZoom: true, zoomControl: false, attributionControl: false });
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
   L.control.zoom({ position: 'topright' }).addTo(map);
   L.control.attribution({ position: 'bottomright', prefix: false })
-    .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>')
-    .addTo(map);
+    .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>').addTo(map);
 
   if (route.length) {
     L.polyline(route, { color: '#E85D3D', weight: 4, opacity: 0.8, interactive: false }).addTo(map);
   }
 
-  /* Markers */
   var markers = [];
   waypoints.forEach(function(wp, i) {
-    if (wp.lat == null || wp.lng == null) { markers.push(null); return; }
-    var el = L.divIcon({
+    if (wp.lat == null) { markers.push(null); return; }
+    var icon = L.divIcon({
       className: '',
       html: '<div class="cw-walk-marker" id="marker-' + i + '">' + (i + 1) + '</div>',
       iconSize: [28, 28], iconAnchor: [14, 14],
     });
-    var m = L.marker([wp.lat, wp.lng], { icon: el })
+    markers.push(L.marker([wp.lat, wp.lng], { icon: icon })
       .bindTooltip(wp.title, { direction: 'top', offset: [0, -18] })
-      .addTo(map);
-    markers.push(m);
+      .addTo(map));
   });
 
-  /* Fit initial bounds */
   var bounds = route.length ? L.polyline(route).getBounds() : null;
-  if (!bounds && waypoints.length) {
+  if (!bounds) {
     var pts = waypoints.filter(function(w){ return w.lat != null; }).map(function(w){ return [w.lat, w.lng]; });
     if (pts.length) bounds = L.polyline(pts).getBounds();
   }
   if (bounds) map.fitBounds(bounds.pad(0.18));
 
-  /* ── Card system ─────────────────────────────────────────────────────── */
-  var cards = Array.from(document.querySelectorAll('.cw-flip-card'));
+  function setMarkerActive(wpIdx) {
+    markers.forEach(function(m, i) {
+      var el = document.getElementById('marker-' + i);
+      if (el) el.classList.toggle('active', i === wpIdx);
+    });
+    if (wpIdx >= 0 && markers[wpIdx]) {
+      map.panTo(markers[wpIdx].getLatLng(), { animate: true, duration: 0.5 });
+    } else if (bounds) {
+      map.fitBounds(bounds.pad(0.18), { animate: true, duration: 0.5 });
+    }
+  }
+
+  /* ── Card flip ───────────────────────────────────────────────────── */
   var btnPrev = document.getElementById('btn-prev');
   var btnNext = document.getElementById('btn-next');
   var dotsEl  = document.getElementById('nav-dots');
 
-  /* Build progress dots */
   for (var d = 0; d < totalCards; d++) {
     var dot = document.createElement('div');
     dot.className = 'cw-nav-dot' + (d === 0 ? ' active' : '');
     dot.dataset.idx = d;
-    dot.addEventListener('click', function(e) { goTo(+e.currentTarget.dataset.idx); });
+    dot.addEventListener('click', (function(i){ return function(){ goTo(i); }; })(d));
     dotsEl.appendChild(dot);
   }
 
@@ -554,38 +445,19 @@
     });
   }
 
-  function setMarkerActive(stopIdx) {
-    /* stopIdx = 0-based waypoint index, or -1 for intro */
-    markers.forEach(function(m, i) {
-      if (!m) return;
-      var el = document.getElementById('marker-' + i);
-      if (el) el.classList.toggle('active', i === stopIdx);
-    });
-    /* pan map to active marker */
-    if (stopIdx >= 0 && markers[stopIdx]) {
-      map.panTo(markers[stopIdx].getLatLng(), { animate: true, duration: 0.5 });
-    } else if (bounds) {
-      map.fitBounds(bounds.pad(0.18), { animate: true, duration: 0.5 });
-    }
-  }
-
-  function goTo(idx) {
+  function goTo(idx, skipMapUpdate) {
     if (idx < 0 || idx >= totalCards || idx === current) return;
-    var direction = idx > current ? 'left' : 'right';
+    var dir = idx > current ? 'left' : 'right';
 
-    /* Exit current */
     cards[current].classList.remove('state-current');
-    cards[current].classList.add(direction === 'left' ? 'state-exit-left' : 'state-exit-right');
+    cards[current].classList.add(dir === 'left' ? 'state-exit-left' : 'state-exit-right');
 
-    /* Pre-position next (no transition) */
-    cards[idx].classList.remove('state-enter-left', 'state-enter-right', 'state-exit-left', 'state-exit-right', 'state-current');
-    cards[idx].classList.add(direction === 'left' ? 'state-enter-right' : 'state-enter-left');
-
-    /* Force reflow then animate in */
+    cards[idx].classList.remove('state-enter-left','state-enter-right','state-exit-left','state-exit-right','state-current');
+    cards[idx].classList.add(dir === 'left' ? 'state-enter-right' : 'state-enter-left');
     cards[idx].getBoundingClientRect();
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        cards[idx].classList.remove('state-enter-left', 'state-enter-right');
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        cards[idx].classList.remove('state-enter-left','state-enter-right');
         cards[idx].classList.add('state-current');
       });
     });
@@ -594,32 +466,85 @@
     btnPrev.disabled = current === 0;
     btnNext.disabled = current === totalCards - 1;
     updateDots();
-    setMarkerActive(current - 1); /* card 0 is intro, stops start at 1 */
+
+    if (!skipMapUpdate) {
+      // Find active waypoint from card slug
+      var slug = cards[current].dataset.slug;
+      var wpIdx = slug ? (slugToWpIdx.hasOwnProperty(slug) ? slugToWpIdx[slug] : -1) : -1;
+      setMarkerActive(wpIdx);
+    }
   }
 
   btnPrev.addEventListener('click', function() { goTo(current - 1); });
   btnNext.addEventListener('click', function() { goTo(current + 1); });
 
-  /* Keyboard */
   document.addEventListener('keydown', function(e) {
+    if (poiOpen) { if (e.key === 'Escape') closePoi(); return; }
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(current - 1);
   });
 
-  /* Touch swipe */
   var touchStartX = 0;
   var stage = document.getElementById('cw-stage');
-  stage.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
-  stage.addEventListener('touchend', function(e) {
+  stage.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', function(e){
     var dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+    if (Math.abs(dx) > 50 && !poiOpen) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+
+  /* ── POI detail card ─────────────────────────────────────────────── */
+  var poiOpen = false;
+  var poiPanel = document.getElementById('poi-panel');
+  var poiCard  = document.getElementById('poi-card');
+  var poiTitle    = document.getElementById('poi-title');
+  var poiCategory = document.getElementById('poi-category');
+  var poiBody     = document.getElementById('poi-body');
+
+  // Build POI lookup from waypoints data
+  var poiData = {};
+  waypoints.forEach(function(wp) { poiData[wp.slug] = wp; });
+
+  function openPoi(path) {
+    // path is like /europe/netherlands/amsterdam/albert_cuypmarkt
+    var slug = path.split('/').pop();
+    var wp = poiData[slug];
+    if (!wp) return;
+
+    poiTitle.textContent    = wp.title;
+    poiCategory.textContent = wp.category || '';
+    poiBody.innerHTML       = wp.body || '<p><em>No description available.</em></p>';
+
+    poiPanel.classList.add('open');
+    poiCard.classList.add('open');
+    poiOpen = true;
+
+    // Highlight the marker
+    var wpIdx = slugToWpIdx.hasOwnProperty(slug) ? slugToWpIdx[slug] : -1;
+    setMarkerActive(wpIdx);
+  }
+
+  function closePoi() {
+    poiCard.classList.remove('open');
+    poiPanel.classList.remove('open');
+    poiOpen = false;
+    // Restore active marker for current section card
+    var slug = cards[current].dataset.slug;
+    var wpIdx = slug ? (slugToWpIdx.hasOwnProperty(slug) ? slugToWpIdx[slug] : -1) : -1;
+    setMarkerActive(wpIdx);
+  }
+
+  document.getElementById('poi-close').addEventListener('click', closePoi);
+
+  // Delegate POI link clicks across all section cards
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('.poi-link');
+    if (link) { e.preventDefault(); openPoi(link.dataset.poi); }
   });
 
   /* Init */
   setMarkerActive(-1);
   btnPrev.disabled = true;
   btnNext.disabled = totalCards <= 1;
-
 }());
 </script>
 {% endblock %}
