@@ -168,27 +168,47 @@ class Poi:
     meta: dict = field(default_factory=dict)
 
 
+def _find_poi_file(path: str, base: Path) -> Path | None:
+    """Return the first existing .md file for *path* under *base*, or None."""
+    candidate = base / (path + ".md")
+    if candidate.exists():
+        return candidate
+    parts = path.rstrip("/").split("/")
+    candidate2 = base / Path(*parts) / (parts[-1] + ".md")
+    if candidate2.exists():
+        return candidate2
+    return None
+
+
 def _load_poi(path: str) -> Poi | None:
-    """Load any markdown file (POI, location, etc.) by URL path."""
-    file_path = CONTENT_DIR / (path + ".md")
-    if not file_path.exists():
-        # Try directory-index form
-        parts = path.rstrip("/").split("/")
-        file_path = CONTENT_DIR / Path(*parts) / (parts[-1] + ".md")
-    if not file_path.exists():
-        return None
-    try:
-        post = frontmatter.load(str(file_path))
-    except Exception:
-        return None
-    meta = post.metadata
-    return Poi(
-        title=meta.get("title", file_path.stem.replace("_", " ").title()),
-        latitude=float(meta.get("latitude") or 0),
-        longitude=float(meta.get("longitude") or 0),
-        body=post.content or "",
-        meta=meta,
-    )
+    """Load any markdown file (POI, location, etc.) by URL path.
+
+    Checks the local content directory first; falls back to the optional
+    world66 content directory configured via settings.WORLD66_CONTENT_DIR.
+    """
+    from django.conf import settings  # local import to avoid circular deps
+
+    search_dirs = [CONTENT_DIR]
+    w66 = getattr(settings, "WORLD66_CONTENT_DIR", None)
+    if w66 and Path(w66).is_dir():
+        search_dirs.append(Path(w66))
+
+    for base in search_dirs:
+        file_path = _find_poi_file(path, base)
+        if file_path:
+            try:
+                post = frontmatter.load(str(file_path))
+            except Exception:
+                continue
+            meta = post.metadata
+            return Poi(
+                title=meta.get("title", file_path.stem.replace("_", " ").title()),
+                latitude=float(meta.get("latitude") or 0),
+                longitude=float(meta.get("longitude") or 0),
+                body=post.content or "",
+                meta=meta,
+            )
+    return None
 
 
 def load_walk(path: str) -> Walk | None:

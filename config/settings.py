@@ -36,3 +36,19 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Optional: path to a world66 content directory to use as POI fallback.
+# Override with env var WORLD66_CONTENT_DIR when world66 is not a sibling repo.
+import os as _os
+_w66_env = _os.environ.get("WORLD66_CONTENT_DIR")
+if _w66_env:
+    WORLD66_CONTENT_DIR = Path(_w66_env)
+else:
+    # Try common locations: sibling dir, home/Repos/world66, etc.
+    _candidates = [
+        BASE_DIR.parent / "world66" / "content",
+        Path.home() / "Repos" / "world66" / "content",
+        Path.home() / "repos" / "world66" / "content",
+        Path.home() / "projects" / "world66" / "content",
+    ]
+    WORLD66_CONTENT_DIR = next((p for p in _candidates if p.is_dir()), None)
