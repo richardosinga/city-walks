@@ -1,6 +1,7 @@
 ---
 title: "The De Pijp Architecture Walk"
 type: walk
+image: de_pijp.jpg
 tags:
   - city_walks
 latitude: 52.357840

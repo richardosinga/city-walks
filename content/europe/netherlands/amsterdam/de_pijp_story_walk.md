@@ -1,6 +1,7 @@
 ---
 title: "The De Pijp Stories Walk"
 type: walk
+image: de_pijp.jpg
 tags:
   - city_walks
 latitude: 52.357917

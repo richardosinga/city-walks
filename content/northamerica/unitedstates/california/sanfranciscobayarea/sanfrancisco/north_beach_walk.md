@@ -1,6 +1,7 @@
 ---
 title: "The North Beach Walk"
 type: walk
+image: north_beach.jpg
 tags:
   - city_walks
 latitude: 37.7998

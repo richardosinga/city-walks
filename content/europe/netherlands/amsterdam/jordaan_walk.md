@@ -1,6 +1,7 @@
 ---
 title: The Jordaan Walk
 type: walk
+image: jordaan.jpg
 tags:
   - city_walks
 latitude: 52.3762

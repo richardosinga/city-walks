@@ -1,6 +1,7 @@
 ---
 title: "Exilio: A Walk Along Calle Ocho"
 type: walk
+image: miami.jpg
 tags:
   - city_walks
 waypoints:

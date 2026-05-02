@@ -1,6 +1,7 @@
 ---
 title: "The Jordaan Architecture Walk"
 type: walk
+image: jordaan.jpg
 tags:
   - city_walks
 latitude: 52.374233

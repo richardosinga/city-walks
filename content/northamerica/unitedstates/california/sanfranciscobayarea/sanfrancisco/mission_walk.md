@@ -1,6 +1,7 @@
 ---
 title: "The Mission Walk"
 type: walk
+image: mission_district.jpg
 tags:
   - city_walks
 latitude: 37.7599

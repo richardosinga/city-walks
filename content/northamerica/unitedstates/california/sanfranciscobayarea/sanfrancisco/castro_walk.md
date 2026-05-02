@@ -1,6 +1,7 @@
 ---
 title: "The Castro Walk"
 type: walk
+image: castro_district.jpg
 tags:
   - city_walks
 latitude: 37.7608

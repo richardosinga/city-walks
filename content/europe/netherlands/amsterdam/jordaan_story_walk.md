@@ -1,6 +1,7 @@
 ---
 title: "The Jordaan Stories Walk"
 type: walk
+image: jordaan.jpg
 tags:
   - city_walks
 latitude: 52.372654

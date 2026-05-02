@@ -5,8 +5,10 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import mimetypes
+
 from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, FileResponse
 from django.shortcuts import render
 
 from .models import load_all_walks, load_walk, walks_by_city, _load_poi
@@ -18,6 +20,14 @@ _CITY_COLORS = [
     "#b8532b", "#c96840", "#9a3e1a", "#d4875a",
     "#7a3010", "#e0956a", "#6b2b0e", "#bf6035",
 ]
+
+
+def content_image(request, path):
+    file_path = CONTENT_DIR / path
+    if not file_path.exists() or not file_path.is_file():
+        raise Http404
+    mime, _ = mimetypes.guess_type(str(file_path))
+    return FileResponse(open(file_path, "rb"), content_type=mime or "image/jpeg")
 
 
 def home(request):

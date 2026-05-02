@@ -1,6 +1,7 @@
 ---
 title: "Pastel, Preserved, and Improbably Alive: The Art Deco Walk"
 type: walk
+image: miami.jpg
 tags: [city_walks]
 waypoints:
   - park_central_hotel

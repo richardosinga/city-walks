@@ -1,6 +1,7 @@
 ---
 title: "The Haight Walk"
 type: walk
+image: haight_ashbury.jpg
 tags:
   - city_walks
 latitude: 37.7689
