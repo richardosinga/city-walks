@@ -81,12 +81,14 @@ def walk_detail(request, path):
                 "lat": poi.latitude or None,
                 "lng": poi.longitude or None,
                 "snippet": poi.meta.get("snippet", ""),
+                "body": poi.body or "",
+                "category": poi.meta.get("category", ""),
             })
         else:
             waypoints_data.append({
                 "slug": slug,
                 "title": slug.replace("_", " ").title(),
-                "lat": None, "lng": None, "snippet": "",
+                "lat": None, "lng": None, "snippet": "", "body": "", "category": "",
             })
 
     return render(request, "city_walks_app/walk.html", {
